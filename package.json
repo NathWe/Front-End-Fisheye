@@ -1,0 +1,18 @@
+{
+  "name": "front-end-fisheye",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "express": "^4.18.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.2",
+    "vite": "^5.0.0"
+  }
+}
