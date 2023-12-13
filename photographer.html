@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/png" href="assets/favicon.png" />
@@ -16,30 +16,48 @@
   </head>
   <body>
     <header>
-      <img src="assets/images/logo.png" class="logo" />
+      <img src="assets/images/logo.png" class="logo" alt="Logo de FishEye" />
     </header>
     <main id="main">
-      <div class="photograph-header">
-        <button class="contact_button" onclick="displayModal()">
-          Contactez-moi
-        </button>
+      <div class="photographer-section">
+        <div class="photographer-info">
+          <div
+            class="photographer-name"
+            data-photographer-name="Nom du photographe"
+          ></div>
+          <div class="location" data-location="Ville du photographe"></div>
+          <div
+            class="description"
+            data-description="Description du photographe"
+          ></div>
+          <button class="contact_button" onclick="openContactModal()">
+            Contactez-moi
+          </button>
+        </div>
       </div>
     </main>
-    <div id="contact_modal">
+
+    <div id="contact_modal" role="dialog">
       <div class="modal">
         <header>
           <h2>Contactez-moi</h2>
-          <img src="assets/icons/close.svg" onclick="closeModal()" />
+          <img
+            src="assets/icons/close.svg"
+            alt="Fermer le formulaire de contact"
+            onclick="closeModal()"
+            id="closeModalIcon"
+          />
         </header>
         <form>
           <div>
-            <label>Prénom</label>
-            <input />
+            <label for="prenom">Prénom :</label>
+            <input id="prenom" name="prenom" />
           </div>
           <button class="contact_button">Envoyer</button>
         </form>
       </div>
     </div>
-    <script type="module" src="/src/pages/photographer.ts"></script>
+    <div id="media-container"></div>
+    <script type="module" src="../src/pages/photographer.ts"></script>
   </body>
 </html>
