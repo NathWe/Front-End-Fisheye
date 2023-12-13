@@ -1,7 +1,7 @@
 import { photographerTemplate } from "../templates/photographer";
 import { Photographer } from "../models/photographer";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MediaFactory, Media } from "../models/mediafactory";
+import { Media } from "../models/mediafactory";
 import "../styles/main.css";
 import "../styles/photographer.css";
 
@@ -64,7 +64,7 @@ function displayPhotographerDetails(data: PhotographerData, mediaData: Media[]) 
 
   // Afficher les médias dans le conteneur
   photographerMedia.forEach((media) => {
-    const mediaElement = createMediaElement(media);
+    const mediaElement = createMediaElement(media, "mediafactory.ts");
     mediaContainer.appendChild(mediaElement);
   });
 
@@ -110,8 +110,48 @@ async function init() {
     displayPhotographerDetails(photographerData, photographerData.media);
   }
 }
-    
-
 
 // Appeler la fonction principale lors du chargement de la page
 window.addEventListener("load", init);
+
+
+const openContactModalButton = document.getElementById("openContactModalButton");
+const contactModal = document.getElementById("contact_modal");
+
+if (openContactModalButton && contactModal) {
+  openContactModalButton.addEventListener("click", () => openContactModal(contactModal));
+}
+const formElement = document.getElementById("contact_modal");
+
+// Vérifier si l'élément du formulaire existe
+if (formElement) {
+  // Ajouter un gestionnaire d'événements pour le formulaire
+  formElement.addEventListener("submit", submitForm);
+}
+function openContactModal(modal: HTMLElement) {
+  // Ouvrir la modale
+  modal.style.display = "block";
+  modal.setAttribute("aria-hidden", "true");
+  // Gérer le focus pour des raisons d'accessibilité
+  modal.focus();
+}
+
+// Fonction pour fermer la modale
+function closeModal() {
+  const contactModal = document.getElementById("contact_modal");
+  if (contactModal) {
+    // Fermer la modale
+    contactModal.style.display = "none";
+    contactModal.setAttribute("aria-hidden", "false");
+  }
+}
+
+// Fonction pour soumettre le formulaire
+function submitForm(event: Event) {
+  event.preventDefault();
+  // Code pour traiter les données du formulaire
+
+
+  // Fermer la modale après avoir traité les données
+  closeModal();
+}

@@ -18,7 +18,7 @@
     <header>
       <img src="assets/images/logo.png" class="logo" alt="Logo de FishEye" />
     </header>
-    <main id="main">
+    <main id="main" aria-hidden="false">
       <div class="photographer-section">
         <div class="photographer-info">
           <div
@@ -30,34 +30,58 @@
             class="description"
             data-description="Description du photographe"
           ></div>
-          <button class="contact_button" onclick="openContactModal()">
+          <button class="contact_button" id="openContactModalButton">
             Contactez-moi
           </button>
         </div>
       </div>
+
+      <div id="contact_modal" role="dialog">
+        <div class="modal">
+          <header>
+            <h2>Contactez-moi</h2>
+            <img
+              src="assets/icons/close.svg"
+              alt="Fermer le formulaire de contact"
+              onclick="closeModal()"
+              id="closeModalIcon"
+            />
+          </header>
+          <form onsubmit="submitForm(event)">
+            <div>
+              <label for="prenom">Prénom :</label>
+              <input
+                id="prenom"
+                name="prenom"
+                pattern="[A-Za-zÀ-ÿ '-]+"
+                required
+              />
+            </div>
+            <div>
+              <label for="nom">Nom :</label>
+              <input id="nom" name="nom" pattern="[A-Za-zÀ-ÿ '-]+" required />
+            </div>
+            <div>
+              <label for="email">E-mail :</label>
+              <input id="email" name="email" type="email" required />
+            </div>
+            <div>
+              <label for="message">Message :</label>
+              <textarea
+                id="message"
+                name="message"
+                minlength="10"
+                required
+              ></textarea>
+            </div>
+            <button type="submit" class="contact_button">Envoyer</button>
+          </form>
+        </div>
+      </div>
+
+      <div id="media-container"></div>
     </main>
 
-    <div id="contact_modal" role="dialog">
-      <div class="modal">
-        <header>
-          <h2>Contactez-moi</h2>
-          <img
-            src="assets/icons/close.svg"
-            alt="Fermer le formulaire de contact"
-            onclick="closeModal()"
-            id="closeModalIcon"
-          />
-        </header>
-        <form>
-          <div>
-            <label for="prenom">Prénom :</label>
-            <input id="prenom" name="prenom" />
-          </div>
-          <button class="contact_button">Envoyer</button>
-        </form>
-      </div>
-    </div>
-    <div id="media-container"></div>
     <script type="module" src="../src/pages/photographer.ts"></script>
   </body>
 </html>
