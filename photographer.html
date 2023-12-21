@@ -16,72 +16,93 @@
   </head>
   <body>
     <header>
-      <img src="assets/images/logo.png" class="logo" alt="Logo de FishEye" />
+      <a href="/">
+        <img src="assets/images/logo.png" class="logo" alt="Logo de FishEye" />
+      </a>
     </header>
+
     <main id="main" aria-hidden="false">
-      <div class="photographer-section">
-        <div class="photographer-info">
-          <div
-            class="photographer-name"
-            data-photographer-name="Nom du photographe"
-          ></div>
-          <div class="location" data-location="Ville du photographe"></div>
-          <div
-            class="description"
-            data-description="Description du photographe"
-          ></div>
-          <button class="contact_button" id="openContactModalButton">
-            Contactez-moi
-          </button>
-        </div>
+      <div class="photographer-info">
+        <div class="photographer-name" data-photographer-name></div>
+        <div class="location" data-location></div>
+        <div class="description" data-description></div>
+        <button class="contact_button" id="openContactModalButton">
+          Contactez-moi
+        </button>
+        <div class="photographer-image" data-photographer-image></div>
       </div>
 
-      <div id="contact_modal" role="dialog">
-        <div class="modal">
-          <header>
-            <h2>Contactez-moi</h2>
+      <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+          <div class="modal-header">
+            <button class="contact_button" id="openContactModalButton">
+              Contactez-moi
+            </button>
+
             <img
               src="assets/icons/close.svg"
               alt="Fermer le formulaire de contact"
               onclick="closeModal()"
               id="closeModalIcon"
             />
-          </header>
-          <form onsubmit="submitForm(event)">
-            <div>
-              <label for="prenom">Prénom :</label>
-              <input
-                id="prenom"
-                name="prenom"
-                pattern="[A-Za-zÀ-ÿ '-]+"
-                required
-              />
-            </div>
-            <div>
-              <label for="nom">Nom :</label>
-              <input id="nom" name="nom" pattern="[A-Za-zÀ-ÿ '-]+" required />
-            </div>
-            <div>
-              <label for="email">E-mail :</label>
-              <input id="email" name="email" type="email" required />
-            </div>
-            <div>
-              <label for="message">Message :</label>
-              <textarea
-                id="message"
-                name="message"
-                minlength="10"
-                required
-              ></textarea>
-            </div>
-            <button type="submit" class="contact_button">Envoyer</button>
-          </form>
+            <span class="photographer-name" id="photographerName"></span>
+          </div>
+          <div class="modal-content">
+            <form id="contactForm">
+              <div>
+                <label for="firstName">Prénom :</label>
+                <input type="text" id="firstName" placeholder="Votre prénom" />
+              </div>
+              <div>
+                <label for="lastName">Nom :</label>
+                <input type="text" id="lastName" placeholder="Votre nom" />
+              </div>
+              <div>
+                <label for="email">Email :</label>
+                <input type="email" id="email" placeholder="Votre email" />
+              </div>
+              <div>
+                <label for="message">Votre message :</label>
+                <textarea
+                  id="message"
+                  placeholder="Saisissez votre message"
+                ></textarea>
+              </div>
+              <button type="submit" class="contact_button">Envoyer</button>
+            </form>
+          </div>
         </div>
       </div>
+      <div class="sort-menu">
+        <label for="sortMenuButton" class="visually-hidden">Trier par</label>
+        <button
+  id="sortMenuButton"
+  aria-haspopup="listbox"
+  aria-expanded="false"
+  aria-labelledby="sortMenuButton"
+>
+  <span onclick="handleSortClick()">Popularité</span>
+</button>
 
+
+        <ul class="sort-options" role="listbox" aria-labelledby="sortMenuButton" id="sortOptionsList">
+          <li role="option" tabindex="0">Popularité</li>
+          <li role="option" tabindex="-1">Date</li>
+          <li role="option" tabindex="-1">Titre</li>
+        </ul>
+      </div>
+      
       <div id="media-container"></div>
-    </main>
+      <!-- Encart des likes et du tarif -->
+      <div id="total-likes-and-rate">
+        <p id="total-likes">
+          <span id="likes-count">0</span> <span id="heart-icon">❤</span>
+        </p>
+        <p id="daily-rate">
+          <span id="rate-value">$0</span> <span id="euro-sign">€</span>/jour
+        </p>
 
-    <script type="module" src="../src/pages/photographer.ts"></script>
+    </main>
+    <script type="module" src="../src/pages/portfolio.ts"></script>
   </body>
 </html>

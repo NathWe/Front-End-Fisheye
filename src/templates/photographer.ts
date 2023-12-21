@@ -1,15 +1,13 @@
 import { Photographer } from "../models/photographer";
 
-export function photographerTemplate(
-  data: Photographer
-) {
+export function photographerTemplate(data: Photographer) {
   const { name, id, portrait, city, country, tagline, price } = data;
 
   const picture = `assets/photographers/id_photos/${portrait}`;
 
   function getUserCardDOM() {
     const article = document.createElement("article");
-    
+
     //Ajout lien autour de l'image et du nom du photographe
     const link = document.createElement("a");
     link.setAttribute("href", `photographer.html?id=${id}`);
@@ -45,7 +43,7 @@ export function photographerTemplate(
     // Ajouter le prix du photographe
     const priceElement = document.createElement("p");
     priceElement.textContent = `À partir de ${price} €`;
-    priceElement.classList.add("priceElement")
+    priceElement.classList.add("priceElement");
     article.appendChild(priceElement);
 
     //Ajout évènement click sur article
