@@ -5,6 +5,10 @@
     box-sizing: border-box;
 }
 
+ul {
+    list-style-type: none;
+}
+
 body {
     font-family: 'DM Sans', sans-serif;
     margin: 20px;
@@ -23,20 +27,29 @@ header {
     margin: 20px;
 }
 
-main {
-    text-align: center;
+/* Styles pour la page du photographe */
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #FAFAFA;
 }
 
-/* Styles pour la page du photographe */
+.photographer-info,
+.contact_button,
+.photographerImage {
+    width: calc(33.33% - 20px);
+}
 
 .photographer-info {
     max-width: 1240px;
-    width: 100%;
-    margin: 0 auto;
     padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    flex-direction: column;
 }
 
 .photographer-name {
@@ -53,23 +66,21 @@ main {
     height: auto;
 }
 
-.photographer-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 50%;
-}
-
 .description {
     color: #525252;
     font-size: 18px;
 }
 
-.photographer-image {
+#photographerImage {
     width: 200px;
     height: 200px;
     object-fit: cover;
-    border-radius: 50%;
+    border-radius: 50% !important;
     margin-left: auto;
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 
@@ -103,6 +114,9 @@ main {
     margin-left: auto;
     margin-right: auto;
     display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .media-item {
@@ -254,10 +268,12 @@ main {
 }
 
 .modal {
-    width: 50%;
+    width: 669px;
+    height: 900px;
     background-color: #DB8876;
     margin: auto;
     position: relative;
+    border-radius: 5px;
 }
 
 .modal-header {
@@ -267,16 +283,42 @@ main {
     font-size: 24px;
     display: flex;
     justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .modal-content {
     padding: 20px;
 }
 
-label {
+.contact-lines {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-text {
+    color: #000000;
+    font-size: 64px;
+    text-align: left;
+}
+
+.modal .photographer-name {
+    color: #000000;
+    font-size: 64px;
+    text-align: left;
+    margin-top: 5px;
+}
+
+#contactForm {
+    text-align: left;
     color: #312E2E;
-    font-size: 18px;
-    margin-right: 10px;
+    font-size: 36px;
+}
+
+.modal .contact_button {
+    display: block;
+    margin-left: 0;
 }
 
 input,
@@ -287,12 +329,13 @@ textarea {
 }
 
 button {
-    width: 100%;
+    width: 170px;
     height: 70px;
     background-color: #901C1C;
     color: white;
     font-size: 20px;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
 }
 
@@ -302,57 +345,137 @@ button:hover {
 
 /* Styles pour le menu de tri */
 
-#sortMenuButton {
-
-    padding: 10px;
-    background-color: #901C1C;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 170px;
+.sort-menu {
+    position: relative;
 }
 
-.sort-menu {
-    display: flex;
-    align-items: center;
+.sort-menu button {
+    position: relative;
 }
 
 .sort-options {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 170px;
-    padding: 5px;
-    border-radius: 5px;
     background-color: #901C1C;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    padding-top: 8px;
+    border-radius: 5px;
 }
 
-.sort-options div {
-    color: white;
-    font-size: 18px;
-    padding: 8px 0;
+.sort-option {
+    display: none;
+    text-align: left;
+    padding-left: 20px;
+    height: 54px;
+    line-height: 54px;
 }
 
-/* Trait horizontal entre les options */
-.sort-options div:not(:last-child) {
-    border-bottom: 1px solid white;
+.sort-option .dropdown {
+    float: right;
+    padding-right: 20px;
 }
 
-/* Styles pour l'option sélectionnée */
-.sort-options [aria-selected="true"] {
-    background-color: #FFD700;
-    /* Couleur de fond pour l'option sélectionnée */
+.sort-options--open .sort-option:not(:first-child) {
+    display: block;
+    border-top: 1px solid #fff;
+    margin: 0 10px;
+
 }
 
-/* Styles pour le cadre déroulant */
-.sort-options[aria-expanded="true"] {
+.sort-options--open .dropdown {
+    rotate: 180deg;
+    padding-right: 0;
+    padding-left: 20px;
+}
+
+.sort-options .sort-option:first-child {
     display: block;
 }
 
-/* Ajoutez une règle de média pour ajuster le style pour les écrans plus petits */
+.sort-options .sort-option:first-child::after {
+    content: ">";
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 32px;
+    width: 32px;
+    position: absolute;
+    top: 18px;
+    right: 10px;
+    rotate: 90deg;
+}
+
+.sort-options--open .sort-option:first-child::after {
+    rotate: 270deg;
+}
+
+
+/*lightbox*/
+.lightbox-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(250, 247, 247, 0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.lightbox {
+    position: relative;
+    max-width: 1050px;
+    max-height: 900px;
+    overflow: hidden;
+}
+
+.lightbox-image {
+    width: 100%;
+    height: auto;
+}
+
+.close-lightbox {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    color: #901C1C;
+    cursor: pointer;
+}
+
+.nav-arrow {
+    position: absolute;
+    font-size: 48px;
+    color: white;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+#prevImage {
+    left: 10px;
+    color: #901C1C;
+}
+
+#nextImage {
+    right: 10px;
+    color: #901C1C;
+}
+
+.lightbox-title {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #901C1C;
+    font-size: 16px;
+}
+
+/* Ajoutrègle de média pour ajuster le style pour les écrans plus petits */
 @media (max-width: 768px) {
     .media-item {
         width: calc(50% - 20px);

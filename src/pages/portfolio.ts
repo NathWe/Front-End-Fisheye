@@ -1,11 +1,15 @@
-// Importez MediaFactory et définissez vos interfaces ici...
-import { MediaFactory, Media } from "../models/mediafactory";
+import { MediaFactory } from "../models/media.factory";
+import { MediaMapper } from "../models/media.mapper";
+import { Media } from "../models/media";
+import { sortSelector } from "../features/sortSelector";
+import { sortKey } from "../models/sort";
+import { Lightbox } from "../features/lightbox";
 
 //variables globales
 let photographerId: number | null;
 let likesData: { [key: number]: number };
 let jsonData: { photographers: Photographer[]; media: Media[] };
-const gallery: Media[] = [];
+let rateValueElement: HTMLElement | null;
 
 // Interface pour décrire la structure d'un photographe
 interface Photographer {
@@ -38,6 +42,19 @@ function getDailyRate(photographerId: number, mediaData: Media[]) {
   return totalDailyRate;
 }
 
+function loadLikesData(photographerId: number, mediaData: Media[]) {
+  likesData = JSON.parse(
+    localStorage.getItem(`likesData_${photographerId}`) || "{}"
+  );
+
+  // Si rien dans le localstorage, on initialise les données de likes avec les données du fichier JSON
+  if (Object.keys(likesData).length === 0) {
+    mediaData
+      .filter((media) => media.photographerId === photographerId)
+      .forEach((media) => (likesData[media.id] = media.likes));
+  }
+}
+
 // Fonction principale pour la page du photographe
 async function main() {
   console.log("Entering main function.");
@@ -55,12 +72,36 @@ async function main() {
 
     photographerId = getPhotographerIdFromUrl();
 
-    // Charge les données de likes depuis le stockage local
-    likesData = JSON.parse(localStorage.getItem("likesData") || "{}");
-
     if (!photographerId) {
       console.error("Aucun ID de photographe spécifié dans l'URL.");
       return;
+    }
+
+    sortSelector((selectedSortKey) => {
+      // Faire quelque chose avec la valeur, quand l'utilisateur a fait une sélection
+      if (selectedSortKey !== null) {
+        // Mettre à jour la valeur de tri courante
+        // Recharge les photos avec la nouvelle valeur de tri
+        displayPhotographerWork(
+          photographerId || 0,
+          jsonData.media,
+          jsonData.photographers,
+          selectedSortKey
+        );
+      }
+    });
+
+    // Charge les données de likes depuis le stockage local
+    loadLikesData(photographerId, jsonData.media);
+    console.log("LikesData :", likesData);
+
+    // Calcule le nombre total de likes initial
+    const initialTotalLikes = computeTotalLikes();
+
+    // Affiche le nombre total de likes initial
+    const totalLikesCountElement = getElementBySelector("#likes-count");
+    if (totalLikesCountElement) {
+      totalLikesCountElement.textContent = initialTotalLikes.toString();
     }
 
     // Trouve le photographe correspondant dans les données
@@ -71,6 +112,35 @@ async function main() {
     if (!photographer) {
       console.error("Aucun photographe trouvé avec l'ID spécifié.");
       return;
+    }
+    // Afficher les informations du photographe dans le HTML
+    const photographerNameElement = document.querySelector(
+      ".photographer-name"
+    ) as HTMLElement;
+    const locationElement = document.querySelector(".location") as HTMLElement;
+    const descriptionElement = document.querySelector(
+      ".description"
+    ) as HTMLElement;
+    const photographerImageElement = document.getElementById(
+      "photographerImage"
+    ) as HTMLImageElement;
+
+    // Mise à jour du contenu des éléments avec les données du photographe
+    if (photographerNameElement) {
+      photographerNameElement.textContent = photographer.name;
+    }
+    // Mise à jour du contenu de l'élément avec la localisation du photographe
+    if (locationElement) {
+      locationElement.textContent = `${photographer.city}, ${photographer.country}`;
+    }
+    // Mise à jour du contenu de l'élément avec la description du photographe
+    if (descriptionElement) {
+      descriptionElement.textContent = photographer.tagline;
+    }
+    // Mise à jour de l'attribut src de l'image avec le chemin de l'image du photographe
+    if (photographerImageElement && photographer.portrait) {
+      const imagePath = `assets/photographers/id_photos/${photographer.portrait}`;
+      photographerImageElement.src = imagePath;
     }
 
     console.log("Photographe trouvé :", photographer);
@@ -91,7 +161,16 @@ async function main() {
     .getElementById("contactForm")
     ?.addEventListener("submit", submitForm);
 
-  // Ajout un gestionnaire d'événement au bouton "Contactez-moi"
+  document
+    .querySelector("#media-container")
+    ?.addEventListener("click", (event) => {
+      console.log(event.target);
+      // TODO : filter event.target pour lancer la fonction adéquate
+      // Par exemple:  Clic sur l'image => lightbox
+      // Autre exemple: Clic sur le coeur => like
+    });
+
+  // Ajout d'un gestionnaire d'événement au bouton "Contactez-moi"
   const openContactModalButton = document.getElementById(
     "openContactModalButton"
   );
@@ -104,7 +183,8 @@ async function main() {
 function displayPhotographerWork(
   photographerId: number,
   mediaData: Media[],
-  photographerData: Photographer[]
+  photographerData: Photographer[],
+  sortBy: sortKey = "popular"
 ) {
   // affiche les réalisations du photographe sur la page
   const mediaContainer = document.querySelector(SELECTOR_MEDIA_CONTAINER);
@@ -113,15 +193,22 @@ function displayPhotographerWork(
     console.error("Media container not found in the document.");
     return;
   }
+  // Vide le conteneur avant d'ajouter les nouveaux éléments
+  mediaContainer.innerHTML = "";
+
   console.log("Media container found:", mediaContainer);
 
   const photographerMedia = mediaData
     .filter((media) => media.photographerId === photographerId)
-    .map((media) => MediaFactory.createMedia(media));
+    .map(MediaMapper.map);
 
   console.log("Photographer media:", photographerMedia);
 
-  photographerMedia.forEach((media) => {
+  // Faire le tri des datas pour les afficher dans le bon ordre
+  // Utilise la fonction sortImages pour trier les images avant de les afficher
+  const sortedPhotographerMedia = sortImages(photographerMedia, sortBy);
+
+  sortedPhotographerMedia.forEach((media) => {
     const photographerFolderName = getPhotographerFolderName(
       photographerId,
       photographerData
@@ -133,10 +220,8 @@ function displayPhotographerWork(
     // Initialise le nombre de likes au moment de la création de l'élément média
     const likesCountElement = mediaElement.querySelector(".likes p");
     if (likesCountElement) {
-      const mediaId = media.id;
-      likesCountElement.textContent = (
-        media.likes + (likesData[mediaId] || 0)
-      ).toString();
+      // Utilise une variable pour stocker le nombre total de likes au chargement de la page
+      likesCountElement.textContent = (likesData[media.id] || 0).toString();
     }
 
     // Ajoute un gestionnaire de clic sur le cœur pour chaque élément média
@@ -149,84 +234,64 @@ function displayPhotographerWork(
   });
 
   // Ajoute l'événement clic à mediaContainer lors de la création de la page
-  mediaContainer.addEventListener("click", (event: Event) => {
-    const target = event.target as HTMLElement;
-    if (target.classList.contains("likes")) {
-      // Si le clic est sur l'icône de cœur, récupère l'ID du média et appelle handleLikeClick
-      const mediaIdString = target.getAttribute("data-media-id");
-      if (mediaIdString) {
-        const mediaId = parseInt(mediaIdString, 10);
-        handleLikeClick(mediaId);
-      }
-    }
-  });
+  // mediaContainer.addEventListener("click", (event: Event) => {
+  //   const target = event.target as HTMLElement;
+  //   if (target.classList.contains("likes")) {
+  //     // Si le clic est sur l'icône de cœur, récupère l'ID du média et appelle handleLikeClick
+  //     const mediaIdString = target.getAttribute("data-media-id");
+  //     if (mediaIdString) {
+  //       const mediaId = parseInt(mediaIdString, 10);
+  //       handleLikeClick(mediaId);
+  //     }
+  //   }
+  // });
   console.log("Media elements added to media container.");
 }
+
 // Fonction pour créer un élément HTML pour un média
 function createMediaElement(
   media: Media,
   photographerFolderName: string
 ): HTMLElement {
+  const htmlMediaElement = new MediaFactory()
+    .createMedia(media)
+    .createHtmlElement({
+      media,
+      src: `assets/photographers/${photographerFolderName}/${media.url}`,
+    });
+
   const mediaElement = document.createElement("div");
   mediaElement.classList.add("media-item");
 
-  if (media.image) {
-    const imgElement = document.createElement("img");
-    imgElement.src = `assets/photographers/${photographerFolderName}/${media.image}`;
-    imgElement.alt = media.title;
-    imgElement.classList.add("media-image");
+  const mediaDetailsContainer = document.createElement("div");
+  mediaDetailsContainer.classList.add("media-details-container");
 
-    const mediaDetailsContainer = document.createElement("div");
-    mediaDetailsContainer.classList.add("media-details-container");
+  const mediaDetails = document.createElement("div");
+  mediaDetails.classList.add("media-details");
 
-    const mediaDetails = document.createElement("div");
-    mediaDetails.classList.add("media-details");
+  const titleElement = document.createElement("h3");
+  titleElement.textContent = media.title;
+  titleElement.classList.add("media-title");
 
-    const titleElement = document.createElement("h3");
-    titleElement.textContent = media.title;
-    titleElement.classList.add("media-title");
+  const likesElement = document.createElement("div");
+  likesElement.classList.add("likes");
 
-    const likesElement = document.createElement("div");
-    likesElement.classList.add("likes");
+  const likesNumberElement = document.createElement("p");
+  likesNumberElement.setAttribute("data-media-id", media.id.toString());
+  likesNumberElement.id = `likes-count-${media.id}`;
+  likesNumberElement.textContent = (likesData[media.id] || 0).toString();
+  likesElement.appendChild(likesNumberElement);
 
-    const likesNumberElement = document.createElement("p");
-    likesNumberElement.setAttribute("data-media-id", media.id.toString());
-    likesNumberElement.id = `likes-count-${media.id}`;
-    likesNumberElement.textContent = `${media.likes}`;
-    likesElement.appendChild(likesNumberElement);
+  const heartElement = document.createElement("span");
+  heartElement.textContent = "❤";
+  likesElement.appendChild(heartElement);
 
-    const heartElement = document.createElement("span");
-    heartElement.textContent = "❤";
-    likesElement.appendChild(heartElement);
+  mediaDetails.appendChild(titleElement);
+  mediaDetails.appendChild(likesElement);
 
-    mediaDetails.appendChild(titleElement);
-    mediaDetails.appendChild(likesElement);
-
-    mediaDetailsContainer.appendChild(mediaDetails);
-    mediaElement.appendChild(imgElement);
-    mediaElement.appendChild(mediaDetailsContainer);
-  } else if (media.video) {
-    const videoElement = document.createElement("video");
-    videoElement.controls = true;
-    videoElement.width = 400;
-    videoElement.height = 300;
-
-    const sourceElement = document.createElement("source");
-    sourceElement.src = `assets/photographers/${photographerFolderName}/${media.video}`;
-    sourceElement.type = "video/mp4";
-
-    videoElement.appendChild(sourceElement);
-
-    const mediaDetails = document.createElement("div");
-    mediaDetails.classList.add("media-details");
-    mediaDetails.innerHTML = `
-      <h3>${media.title}</h3>
-      <p>${media.likes} Likes</p>
-    `;
-
-    mediaElement.appendChild(videoElement);
-    mediaElement.appendChild(mediaDetails);
-  }
+  mediaDetailsContainer.appendChild(mediaDetails);
+  mediaElement.appendChild(htmlMediaElement);
+  mediaElement.appendChild(mediaDetailsContainer);
 
   return mediaElement;
 }
@@ -249,13 +314,13 @@ function getPhotographerIdFromUrl(): number | null {
   return photographerIdParam ? parseInt(photographerIdParam, 10) : null;
 }
 
-function handleLikeClick(mediaId: number) {
+function handleLikeClick(mediaId: number): void {
   console.log(`Clic sur le cœur détecté pour la photo ${mediaId}`);
 
   if (!photographerId) return;
 
   // Initialise likesData si ce n'est pas déjà fait
-  likesData[mediaId] = likesData[mediaId] ?? 0;
+  likesData[mediaId] = likesData[mediaId] || 0;
 
   // Avant l'incrémentation
   console.log("Avant l'incrémentation : ", likesData[mediaId]);
@@ -266,21 +331,27 @@ function handleLikeClick(mediaId: number) {
   // Après l'incrémentation
   console.log("Après l'incrémentation : ", likesData[mediaId]);
 
-  // Met à jour l'affichage du nombre de likes pour la photo spécifique
-  const likesCountElement = getElementBySelector(`#likes-count-${mediaId}`);
-  console.log(`.likes-count-${mediaId}`);
-  if (likesCountElement) {
-    likesCountElement.textContent = (
-      parseInt(likesCountElement.textContent || "0") + 1
-    ).toString();
-  }
+  // Mise à jour compteur like du media
+  const likesCountElement = document.querySelector(
+    `[data-media-id="${mediaId}"]`
+  );
+  if (likesCountElement)
+    likesCountElement.textContent = likesData[mediaId].toString();
 
-  // Met à jour le nombre total de likes et le tarif par jour
+  // Recalcule le nombre total de likes et met à jour l'affichage
   displayTotalLikesAndDailyRate(photographerId, jsonData.media);
   console.log(`Likes mis à jour pour la photo ${mediaId}`);
 
   // Sauvegarde les données de likes dans le stockage local
-  localStorage.setItem("likesData", JSON.stringify(likesData));
+  localStorage.setItem(
+    `likesData_${photographerId}`,
+    JSON.stringify(likesData)
+  );
+}
+
+// Fonction pour calculer le nombre total de likes
+function computeTotalLikes(): number {
+  return Object.values(likesData).reduce((sum, likes) => sum + likes, 0);
 }
 
 // Fonction pour afficher le nombre total de likes et le tarif par jour
@@ -291,45 +362,25 @@ function displayTotalLikesAndDailyRate(
   if (!photographerId) return;
 
   const totalLikesCountElement = getElementBySelector("#likes-count");
-  const rateValueElement = getElementBySelector("#rate-value");
+  if (!totalLikesCountElement) return;
 
-  if (!totalLikesCountElement || !rateValueElement) return;
-
-  // Récupère le nombre initial de likes depuis l'élément HTML
-  const initialLikes = parseInt(
-    totalLikesCountElement.dataset.initialLikes || "0",
-    10
-  );
-
-  // Récupère les likes incrémentés depuis le stockage local
-  const additionalLikes = parseInt(
-    localStorage.getItem("additionalLikes") || "0",
-    10
-  );
-
-  // Utilise mediaData pour calculer le nombre total de likes (y compris les likes initiaux)
-  const totalLikes = likesData
-    ? Object.values(likesData).reduce((sum, likes) => sum + likes, 0)
-    : mediaData
-        .filter((media) => media.photographerId === photographerId)
-        .reduce((sum, media) => sum + media.likes, 0) +
-      initialLikes +
-      additionalLikes;
-
+  // Utilise calculateTotalLikes au lieu de récupérer directement les likesData
   // Affiche le nombre total de likes
-  totalLikesCountElement.textContent = totalLikes.toString();
+  totalLikesCountElement.textContent = computeTotalLikes().toString();
 
   // Affiche le tarif par jour
-  rateValueElement.textContent = getDailyRate(
-    photographerId,
-    mediaData
-  ).toString();
+  if (rateValueElement) {
+    rateValueElement.textContent = getDailyRate(
+      photographerId,
+      mediaData
+    ).toString();
+  }
 }
 // Fonction pour trier les images en fonction de l'option sélectionnée
-function sortImages(gallery: Media[], sortBy: string) {
+function sortImages(gallery: Media[], sortBy: sortKey) {
   console.log("Sorting images by:", sortBy);
   switch (sortBy) {
-    case "popularité":
+    case "popular":
       gallery.sort((a, b) => b.likes - a.likes);
       break;
     case "date":
@@ -337,46 +388,18 @@ function sortImages(gallery: Media[], sortBy: string) {
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       );
       break;
-    case "titre":
-      gallery.sort((a, b) => a.title.localeCompare(b.title));
+    case "title":
+      gallery.sort((a, b) =>
+        a.title.localeCompare(b.title, "fr", { sensitivity: "base" })
+      );
       break;
     default:
       break;
   }
+
   console.log("Sorted gallery:", gallery);
-  // Met à jour l'affichage des images après le tri
-  updateGalleryDisplay(gallery);
-}
-// Fonction pour mettre à jour l'affichage de la galerie après le tri
-function updateGalleryDisplay(gallery: Media[]) {
-  const mediaContainer = getElementBySelector(SELECTOR_MEDIA_CONTAINER);
-  if (mediaContainer) {
-    // Supprime toutes les images actuelles dans le conteneur
-    mediaContainer.innerHTML = "";
-
-    // Ajoute les images triées à nouveau dans le conteneur
-    gallery.forEach((media) => {
-      const photographerFolderName = getPhotographerFolderName(
-        photographerId || 0,
-        jsonData.photographers
-      );
-      const mediaElement = createMediaElement(media, photographerFolderName);
-      mediaContainer.appendChild(mediaElement);
-    });
-  }
-}
-// Ajoute un gestionnaire d'événement au bouton "Trier par"
-const sortMenuButton = document.getElementById("sortMenuButton");
-if (sortMenuButton) {
-  sortMenuButton.addEventListener("click", (e) => {
-    const target = e.target as HTMLElement;
-    const sortBy = target.textContent?.toLowerCase() ?? "";
-    console.log("Sort By:", sortBy);
-    sortImages(gallery, sortBy);
-
-    // Empêche le clic de provoquer une navigation
-    e.preventDefault();
-  });
+  // Retourne les images triées
+  return gallery;
 }
 
 // modale
@@ -404,18 +427,23 @@ function openContactModal() {
   const modalOverlay = document.getElementById("modalOverlay");
   const modal = document.getElementById("modal");
   const modalHeader = document.querySelector("#photographerName");
+  const closeModalFunction = closeModal;
 
   // Ajoutez ces logs pour voir si les éléments sont correctement récupérés
   console.log("Photographer Name Element:", photographerNameElement);
   console.log("Modal Overlay:", modalOverlay);
   console.log("Modal:", modal);
   console.log("Modal Header:", modalHeader);
+  console.log("Close Modal Function:", closeModalFunction);
 
   // Met à jour le contenu de la modal avec le nom du photographe
   if (modalOverlay && modal && modalHeader) {
-    modalHeader.textContent = `Contactez ${photographerName}`;
+    modalHeader.textContent = `${photographerName}`;
     modalOverlay.style.display = "block";
     modal.style.display = "block";
+    // Ajoute un gestionnaire d'événement au bouton de fermeture dans ce contexte
+    const closeModalIcon = document.getElementById("closeModalIcon");
+    closeModalIcon?.addEventListener("click", closeModalFunction);
   } else {
     console.log("Modal elements are null or undefined");
   }
@@ -452,25 +480,10 @@ function submitForm(event: Event): void {
   closeModal();
 }
 
-// Nouvelle fonction pour gérer le clic sur le tri
-function handleSortClick() {
-  const sortBy = "popularité";
-  console.log("Sort By:", sortBy);
-  sortImages(gallery, sortBy);
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   main();
   console.log("Page chargée");
-
-  // Initialise likesData si ce n'est pas déjà fait
-  likesData = JSON.parse(localStorage.getItem("likesData") || "{}");
-
-  // Initialise totalLikes à partir du stockage local ou à 0
-  const totalLikes = parseInt(localStorage.getItem("totalLikes") || "0", 10);
-
-  // Met à jour les likes dans likesData avec le totalLikes actuel
-  likesData = { 0: totalLikes };
+  rateValueElement = getElementBySelector("#rate-value");
 
   // Affiche le totalLikes et le tarif par jour
   if (photographerId !== null && jsonData) {
@@ -481,19 +494,40 @@ document.addEventListener("DOMContentLoaded", () => {
     contactForm.addEventListener("submit", submitForm);
   }
 
-  // Ajout un gestionnaire d'événement au bouton de tri
-  const sortButton = document.getElementById("sortMenuButton");
-  if (sortButton) {
-    sortButton.addEventListener("click", handleSortClick);
-  }
+  Lightbox.initialize(
+    "lightboxOverlay",
+    "lightboxImage",
+    "lightboxTitle",
+    "closeLightbox",
+    "prevImage",
+    "nextImage"
+  );
+});
 
-  // Ajout l'événement clic à document pour capturer les clics sur le bouton de tri
-  document.addEventListener("click", (e) => {
-    const target = e.target as HTMLElement;
-    if (target.id === "sortMenuButton") {
-      handleSortClick();
-      // Empêche le clic de provoquer une navigation
-      e.preventDefault();
+// Ajoutez ces lignes pour utiliser la lightbox
+document
+  .querySelector("#media-container")
+  ?.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement;
+
+    // Ajoutez ces logs pour voir quel élément est cliqué
+    console.log("Clicked Element:", target);
+
+    // Si une balise IMG est cliquée, ouvre la lightbox
+    if (target.tagName === "IMG") {
+      console.log("Image Clicked!");
+
+      const mediaList = jsonData.media.filter(
+        (media) => media.photographerId === photographerId
+      );
+      const startIndex = mediaList.findIndex(
+        (media) => media.url === target.getAttribute("src")
+      );
+
+      if (startIndex !== -1) {
+        Lightbox.openLightbox(mediaList, startIndex);
+      }
     }
   });
-});
+
+// lightbox("#lightbox", "#closeLightbox", "#prevImage", "#nextImage");

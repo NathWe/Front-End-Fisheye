@@ -22,50 +22,50 @@
     </header>
 
     <main id="main" aria-hidden="false">
+      <div class="container">
       <div class="photographer-info">
         <div class="photographer-name" data-photographer-name></div>
         <div class="location" data-location></div>
         <div class="description" data-description></div>
+      </div>
         <button class="contact_button" id="openContactModalButton">
           Contactez-moi
         </button>
-        <div class="photographer-image" data-photographer-image></div>
+        <img id="photographerImage" alt="Portrait du photographe"/>
       </div>
+    
 
       <div class="modal-overlay" id="modalOverlay">
         <div class="modal" id="modal">
           <div class="modal-header">
-            <button class="contact_button" id="openContactModalButton">
-              Contactez-moi
-            </button>
-
+            <div class="contact-lines">
+              <p class="contact-text">Contactez-moi</p>
+              <p class="photographer-name" id="photographerName"></p>
+          </div>
             <img
               src="assets/icons/close.svg"
               alt="Fermer le formulaire de contact"
-              onclick="closeModal()"
               id="closeModalIcon"
             />
-            <span class="photographer-name" id="photographerName"></span>
           </div>
           <div class="modal-content">
             <form id="contactForm">
               <div>
-                <label for="firstName">Prénom :</label>
-                <input type="text" id="firstName" placeholder="Votre prénom" />
+                <label for="firstName">Prénom</label>
+                <input type="text" id="firstName" />
               </div>
               <div>
-                <label for="lastName">Nom :</label>
-                <input type="text" id="lastName" placeholder="Votre nom" />
+                <label for="lastName">Nom</label>
+                <input type="text" id="lastName" />
               </div>
               <div>
-                <label for="email">Email :</label>
-                <input type="email" id="email" placeholder="Votre email" />
+                <label for="email">Email</label>
+                <input type="email" id="email" />
               </div>
               <div>
-                <label for="message">Votre message :</label>
+                <label for="message">Votre message</label>
                 <textarea
                   id="message"
-                  placeholder="Saisissez votre message"
                 ></textarea>
               </div>
               <button type="submit" class="contact_button">Envoyer</button>
@@ -76,21 +76,19 @@
       <div class="sort-menu">
         <label for="sortMenuButton" class="visually-hidden">Trier par</label>
         <button
-  id="sortMenuButton"
-  aria-haspopup="listbox"
-  aria-expanded="false"
-  aria-labelledby="sortMenuButton"
->
-  <span onclick="handleSortClick()">Popularité</span>
-</button>
-
-
-        <ul class="sort-options" role="listbox" aria-labelledby="sortMenuButton" id="sortOptionsList">
-          <li role="option" tabindex="0">Popularité</li>
-          <li role="option" tabindex="-1">Date</li>
-          <li role="option" tabindex="-1">Titre</li>
-        </ul>
-      </div>
+            id="sortMenuButton"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+            aria-labelledby="sortMenuButton"
+        >
+            <ul class="sort-options" role="listbox" aria-labelledby="sortMenuButton" id="sortOptionsList">
+              <li class="sort-option" role="option" tabindex="0" data-filter-value="popular">Popularité</li>
+              <li class="sort-option" role="option" tabindex="0" data-filter-value="title">Titre</li>
+              <li class="sort-option" role="option" tabindex="0" data-filter-value="date">Date</li>
+            </ul>
+        </button>
+    </div>
+    
       
       <div id="media-container"></div>
       <!-- Encart des likes et du tarif -->
@@ -101,7 +99,18 @@
         <p id="daily-rate">
           <span id="rate-value">$0</span> <span id="euro-sign">€</span>/jour
         </p>
-
+      <!-- lightbox -->
+      <div id="lightboxOverlay" class="lightbox-overlay">
+        <div id="lightbox" class="lightbox">
+          <span id="closeLightbox" class="close-lightbox">✕</span>
+          <img id="lightboxImage" class="lightbox-image" src="" alt="Lightbox Image">
+          <span id="prevImage" class="nav-arrow">‹</span>
+          <span id="nextImage" class="nav-arrow">›</span>
+          <div id="lightboxTitle" class="lightbox-title"></div>
+        </div>
+      </div>
+      
+        
     </main>
     <script type="module" src="../src/pages/portfolio.ts"></script>
   </body>
