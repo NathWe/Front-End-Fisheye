@@ -267,7 +267,7 @@ header {
 /*modal*/
 /* Styles pour la modale */
 .modal-overlay {
-    display: none;
+
     position: fixed;
     top: 0;
     left: 0;
@@ -280,6 +280,7 @@ header {
 .modal {
     width: 669px;
     height: auto;
+    max-height: 90vh;
     background-color: #DB8876;
     margin: auto;
     position: relative;
@@ -341,9 +342,9 @@ header {
 
 input,
 textarea {
-    width: 100%;
+    width: 559px;
     height: 68px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     border-radius: 5px;
 }
 
