@@ -7,11 +7,16 @@
       href="https://fonts.googleapis.com/css?family=DM+Sans&display=swap"
       rel="stylesheet"
     />
+    <script
+      src="https://kit.fontawesome.com/64434449ec.js"
+      crossorigin="anonymous"
+    ></script>
     <link
       rel="stylesheet"
       type="text/css"
       href="../src/styles/photographer.css"
     />
+
     <title>Fisheye - photographe</title>
   </head>
   <body>
@@ -40,7 +45,7 @@
         >
           Contactez-moi
         </button>
-        <img id="photographerImage" alt="Portrait du photographe" />
+        <img id="photographerImage" alt="" />
       </article>
 
       <div class="modal-overlay" id="modalOverlay">
@@ -152,27 +157,41 @@
           id="lightbox"
           class="lightbox"
           role="dialog"
-          aria-labelledby="lightbox"
+          aria-labelledby="Visionnage des photos"
           aria-modal="true"
         >
           <div class="lightbox-content">
-            <img
-              id="lightboxImage"
-              class="lightbox-image"
-              src=""
-              alt="Lightbox Image"
-              tabindex="0"
-            />
+            <div class="lightbox-content-left">
+              <span id="prevImage" class="nav-arrow" tabindex="0"
+                ><i class="fas fa-chevron-left"></i>
+                <p class="sr-only">Précédent</p>
+              </span>
+            </div>
+            <div class="lightbox-content-center">
+              <img
+                id="lightboxImage"
+                class="lightbox-image"
+                src=""
+                alt="Lightbox Image"
+                tabindex="0"
+              />
+              <span
+                id="lightboxTitle"
+                class="lightbox-title"
+                tabindex="0"
+              ></span>
+            </div>
             <span id="closeLightbox" class="close-lightbox" tabindex="0"
-            >&times;</span
-          >
-            <span id="prevImage" class="nav-arrow" tabindex="0">‹</span>
-            <span id="nextImage" class="nav-arrow" tabindex="0">›</span>
-
-            <span id="lightboxTitle" class="lightbox-title" tabindex="0"></span>
+              ><i class="fas fa-times"></i
+            ></span>
+            <div class="lightbox-content-right">
+              <span id="nextImage" class="nav-arrow" tabindex="0"
+                ><i class="fas fa-chevron-right"></i>
+                <p class="sr-only">Prochain</p>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
       </div>
     </main>
     <script type="module" src="../src/pages/portfolio.ts"></script>
