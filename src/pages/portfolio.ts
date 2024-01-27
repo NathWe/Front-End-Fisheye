@@ -173,35 +173,7 @@ async function main() {
     ?.addEventListener("click", (event) => {
       console.log(event.target);
     });
-
-  // Ajout d'un gestionnaire d'événement au bouton "Contactez-moi"
-  const openContactModalButton = document.getElementById(
-    "openContactModalButton"
-  );
-  openContactModalButton?.addEventListener("click", () => {
-    openContactModal();
-  });
-
-  // Ajout d'un gestionnaire d'événement pour la touche "Escape" sur la croix de fermeture du formulaire
-  const closeModalIcon = document.getElementById("closeModalIcon");
-  closeModalIcon?.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      closeModal();
-    }
-  });
-
-  closeModalIcon?.addEventListener("blur", () => {
-    // Supprimer l'écouteur d'événements pour la touche "Escape"
-    document.removeEventListener("keydown", escapeKeyHandler);
-  });
 }
-
-function escapeKeyHandler(event: KeyboardEvent) {
-  if (event.key === "Escape") {
-    closeModal();
-  }
-}
-
 // Fonction pour afficher les réalisations d'un photographe
 function displayPhotographerWork(
   photographerId: number,
@@ -470,12 +442,34 @@ function openContactModal() {
     modal.style.display = "block";
     // Ajoute un gestionnaire d'événement au bouton de fermeture dans ce contexte
     const closeModalIcon = document.getElementById("closeModalIcon");
-    closeModalIcon?.addEventListener("click", closeModalFunction);
+    closeModalIcon?.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    });
+
+    // Rend l'icône de fermeture focusable
+    closeModalIcon?.setAttribute("tabindex", "0");
+
+    // Ajoute un gestionnaire d'événement pour la touche "Enter"
+    closeModalIcon?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        closeModal();
+      }
+    });
+
+    // Ajoute un gestionnaire d'événement pour la touche "Escape"
+    document.addEventListener("keydown", escapeKeyHandler);
   } else {
     console.log("Modal elements are null or undefined");
   }
 }
-
+// Fonction pour gérer la touche "Escape"
+function escapeKeyHandler(event: KeyboardEvent) {
+  if (event.key === "Escape") {
+    closeModal();
+  }
+}
 // Fonction pour fermer la modale
 function closeModal() {
   const modalOverlay = document.getElementById("modalOverlay");
