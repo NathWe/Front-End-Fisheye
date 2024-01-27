@@ -1,26 +1,17 @@
-import { Media } from "./media";
+import { Media, MediaJSON } from "./media";
 
 export class MediaMapper {
-  static map(data: {
-    id: number;
-    photographerId: number;
-    title: string;
-    image: string;
-    video?: string;
-    likes: number;
-    date: string;
-    price: number;
-  }): Media {
+  static map(data: MediaJSON, mediaFolderName: string): Media {
     // Logique pour créer un objet Media à partir des données
     return {
       id: data.id,
       photographerId: data.photographerId,
       title: data.title,
-      image: data.image,
-      video: data.video,
-      url: data.video ? data.video : data.image,
+      url: `assets/photographers/${mediaFolderName}/${
+        data.video ? data.video : data.image
+      }`,
       likes: data.likes,
-      date: data.date,
+      date: new Date(data.date),
       price: data.price,
       type: data.video ? "video" : "image",
     };

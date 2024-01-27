@@ -17,39 +17,59 @@
   <body>
     <header>
       <a href="/">
-        <img src="assets/images/logo.png" class="logo" alt="Logo de FishEye" />
+        <img
+          src="assets/images/logo.png"
+          class="logo"
+          alt="Logo de FishEye - Site de photographies en ligne"
+        />
       </a>
     </header>
 
     <main id="main" aria-hidden="false">
-      <div class="container">
-      <div class="photographer-info">
-        <div class="photographer-name" data-photographer-name></div>
-        <div class="location" data-location></div>
-        <div class="description" data-description></div>
-      </div>
-        <button class="contact_button" id="openContactModalButton">
+      <article class="container">
+        <div class="photographer-info">
+          <div class="photographer-name" data-photographer-name></div>
+          <div class="location" data-location></div>
+          <div class="description" data-description></div>
+        </div>
+        <button
+          tabindex="0"
+          class="contact_button"
+          id="openContactModalButton"
+          aria-label="Ouvrir le formulaire de contact"
+        >
           Contactez-moi
         </button>
-        <img id="photographerImage" alt="Portrait du photographe"/>
-      </div>
-    
+        <img id="photographerImage" alt="Portrait du photographe" />
+      </article>
 
       <div class="modal-overlay" id="modalOverlay">
-        <div class="modal" id="modal">
+        <div
+          class="modal"
+          id="modal"
+          role="dialog"
+          aria-labelledby="photographerName"
+        >
           <div class="modal-header">
             <div class="contact-lines">
               <p class="contact-text">Contactez-moi</p>
               <p class="photographer-name" id="photographerName"></p>
-          </div>
+            </div>
             <img
               src="assets/icons/close.svg"
               alt="Fermer le formulaire de contact"
               id="closeModalIcon"
+              tabindex="0"
+              role="button"
+              aria-label="Fermer le formulaire de contact"
             />
           </div>
           <div class="modal-content">
-            <form id="contactForm">
+            <form
+              id="contactForm"
+              aria-live="polite"
+              aria-describedby="formDescription"
+            >
               <div>
                 <label for="firstName">Prénom</label>
                 <input type="text" id="firstName" />
@@ -64,11 +84,11 @@
               </div>
               <div>
                 <label for="message">Votre message</label>
-                <textarea
-                  id="message"
-                ></textarea>
+                <textarea id="message" class="custom-textarea"></textarea>
               </div>
-              <button type="submit" class="contact_button">Envoyer</button>
+              <button tabindex="0" type="submit" class="contact_button">
+                Envoyer
+              </button>
             </form>
           </div>
         </div>
@@ -76,20 +96,46 @@
       <div class="sort-menu">
         <label for="sortMenuButton" class="visually-hidden">Trier par</label>
         <button
-            id="sortMenuButton"
-            aria-haspopup="listbox"
-            aria-expanded="false"
-            aria-labelledby="sortMenuButton"
+          id="sortMenuButton"
+          aria-haspopup="listbox"
+          aria-expanded="false"
+          aria-labelledby="sortMenuButton"
+          aria-label="Trier par"
         >
-            <ul class="sort-options" role="listbox" aria-labelledby="sortMenuButton" id="sortOptionsList">
-              <li class="sort-option" role="option" tabindex="0" data-filter-value="popular">Popularité</li>
-              <li class="sort-option" role="option" tabindex="0" data-filter-value="title">Titre</li>
-              <li class="sort-option" role="option" tabindex="0" data-filter-value="date">Date</li>
-            </ul>
+          <ul
+            class="sort-options"
+            role="listbox"
+            aria-labelledby="sortMenuButton"
+            id="sortOptionsList"
+          >
+            <li
+              class="sort-option"
+              role="option"
+              tabindex="0"
+              data-filter-value="popular"
+            >
+              Popularité
+            </li>
+            <li
+              class="sort-option"
+              role="option"
+              tabindex="0"
+              data-filter-value="title"
+            >
+              Titre
+            </li>
+            <li
+              class="sort-option"
+              role="option"
+              tabindex="0"
+              data-filter-value="date"
+            >
+              Date
+            </li>
+          </ul>
         </button>
-    </div>
-    
-      
+      </div>
+
       <div id="media-container"></div>
       <!-- Encart des likes et du tarif -->
       <div id="total-likes-and-rate">
@@ -99,18 +145,35 @@
         <p id="daily-rate">
           <span id="rate-value">$0</span> <span id="euro-sign">€</span>/jour
         </p>
+      </div>
       <!-- lightbox -->
-      <div id="lightboxOverlay" class="lightbox-overlay">
-        <div id="lightbox" class="lightbox">
-          <span id="closeLightbox" class="close-lightbox">✕</span>
-          <img id="lightboxImage" class="lightbox-image" src="" alt="Lightbox Image">
-          <span id="prevImage" class="nav-arrow">‹</span>
-          <span id="nextImage" class="nav-arrow">›</span>
-          <div id="lightboxTitle" class="lightbox-title"></div>
+      <div id="lightboxOverlay">
+        <div
+          id="lightbox"
+          class="lightbox"
+          role="dialog"
+          aria-labelledby="lightbox"
+          aria-modal="true"
+        >
+          <div class="lightbox-content">
+            <img
+              id="lightboxImage"
+              class="lightbox-image"
+              src=""
+              alt="Lightbox Image"
+              tabindex="0"
+            />
+            <span id="closeLightbox" class="close-lightbox" tabindex="0"
+            >&times;</span
+          >
+            <span id="prevImage" class="nav-arrow" tabindex="0">‹</span>
+            <span id="nextImage" class="nav-arrow" tabindex="0">›</span>
+
+            <span id="lightboxTitle" class="lightbox-title" tabindex="0"></span>
+          </div>
         </div>
       </div>
-      
-        
+      </div>
     </main>
     <script type="module" src="../src/pages/portfolio.ts"></script>
   </body>

@@ -75,7 +75,7 @@ header {
     width: 200px;
     height: 200px;
     object-fit: cover;
-    border-radius: 50% !important;
+    border-radius: 50%;
     margin-left: auto;
     margin-right: 20px;
     display: flex;
@@ -136,6 +136,16 @@ header {
     border-radius: 5px;
     object-fit: cover;
     display: block;
+    cursor: pointer;
+}
+
+.media-items video {
+    width: 100%;
+    height: 300px;
+    border-radius: 5px;
+    object-fit: cover;
+    display: block;
+    cursor: pointer;
 }
 
 .media-details-container {
@@ -269,11 +279,13 @@ header {
 
 .modal {
     width: 669px;
-    height: 900px;
+    height: auto;
     background-color: #DB8876;
     margin: auto;
     position: relative;
     border-radius: 5px;
+    overflow-y: auto;
+    margin-top: 40px;
 }
 
 .modal-header {
@@ -283,13 +295,12 @@ header {
     font-size: 24px;
     display: flex;
     justify-content: space-between;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .modal-content {
     padding: 20px;
+    overflow-y: auto;
 }
 
 .contact-lines {
@@ -316,6 +327,13 @@ header {
     font-size: 36px;
 }
 
+#closeModalIcon {
+    font-size: 36px;
+    cursor: pointer;
+    margin-top: 20px;
+    margin-right: 20px;
+}
+
 .modal .contact_button {
     display: block;
     margin-left: 0;
@@ -326,6 +344,7 @@ textarea {
     width: 100%;
     height: 68px;
     margin-bottom: 20px;
+    border-radius: 5px;
 }
 
 button {
@@ -341,6 +360,11 @@ button {
 
 button:hover {
     background-color: #681414;
+}
+
+.custom-textarea {
+    height: 150px;
+    /* Ajustez la hauteur selon vos besoins */
 }
 
 /* Styles pour le menu de tri */
@@ -411,40 +435,58 @@ button:hover {
     rotate: 270deg;
 }
 
+/* Lightbox */
 
-/*lightbox*/
-.lightbox-overlay {
-    display: none;
+#lightboxOverlay {
     position: fixed;
     top: 0;
+    bottom: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(250, 247, 247, 0.8);
-    justify-content: center;
-    align-items: center;
+    right: 0;
+    background: #fff;
+    display: none;
     z-index: 1000;
+}
+
+#lightboxOverlay.open {
+    display: block;
 }
 
 .lightbox {
     position: relative;
-    max-width: 1050px;
-    max-height: 900px;
+    max-width: 1240px;
+    height: auto;
+    margin: 20px auto;
     overflow: hidden;
 }
 
-.lightbox-image {
-    width: 100%;
-    height: auto;
+.lightbox-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 984px;
+    width: auto;
+    margin-right: 196px;
+    margin-left: 196px;
+    padding-top: 60px;
 }
 
-.close-lightbox {
+#lightboxImage {
+    max-width: 100%;
+    max-height: 900px;
+    object-fit: contain;
+    display: block;
+}
+
+#closeLightbox {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 24px;
+    right: 20px;
+    font-size: 42px;
     color: #901C1C;
     cursor: pointer;
+    padding-right: 96px;
+    top: 96px;
 }
 
 .nav-arrow {
@@ -454,26 +496,30 @@ button:hover {
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
+    padding-right: 96px;
 }
 
 #prevImage {
-    left: 10px;
+    left: 20px;
     color: #901C1C;
+    font-size: 48px;
+    padding-left: 96px;
 }
 
 #nextImage {
-    right: 10px;
+    right: 20px;
     color: #901C1C;
+    font-size: 48px;
+    padding-right: 96px;
+
 }
 
-.lightbox-title {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
+#lightboxTitle {
+    margin-right: auto;
     color: #901C1C;
     font-size: 16px;
 }
+
 
 /* Ajoutrègle de média pour ajuster le style pour les écrans plus petits */
 @media (max-width: 768px) {

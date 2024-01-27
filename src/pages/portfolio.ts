@@ -1,15 +1,17 @@
 import { MediaFactory } from "../models/media.factory";
 import { MediaMapper } from "../models/media.mapper";
-import { Media } from "../models/media";
+import { Media, MediaJSON } from "../models/media";
 import { sortSelector } from "../features/sortSelector";
 import { sortKey } from "../models/sort";
 import { Lightbox } from "../features/lightbox";
+import { getPhotographerIdFromUrl } from "../utils/urlUtils";
 
 //variables globales
 let photographerId: number | null;
 let likesData: { [key: number]: number };
-let jsonData: { photographers: Photographer[]; media: Media[] };
+let jsonData: { photographers: Photographer[]; media: MediaJSON[] };
 let rateValueElement: HTMLElement | null;
+let mediaList: Media[];
 
 // Interface pour décrire la structure d'un photographe
 interface Photographer {
@@ -77,6 +79,16 @@ async function main() {
       return;
     }
 
+    // Récupère la liste des médias du photographe
+    mediaList = jsonData.media
+      .filter((media) => media.photographerId === photographerId)
+      .map((mediaJson) =>
+        MediaMapper.map(
+          mediaJson,
+          getPhotographerFolderName(photographerId || 0, jsonData.photographers)
+        )
+      );
+
     sortSelector((selectedSortKey) => {
       // Faire quelque chose avec la valeur, quand l'utilisateur a fait une sélection
       if (selectedSortKey !== null) {
@@ -84,15 +96,14 @@ async function main() {
         // Recharge les photos avec la nouvelle valeur de tri
         displayPhotographerWork(
           photographerId || 0,
-          jsonData.media,
-          jsonData.photographers,
+          mediaList,
           selectedSortKey
         );
       }
     });
 
     // Charge les données de likes depuis le stockage local
-    loadLikesData(photographerId, jsonData.media);
+    loadLikesData(photographerId, mediaList);
     console.log("LikesData :", likesData);
 
     // Calcule le nombre total de likes initial
@@ -145,14 +156,10 @@ async function main() {
 
     console.log("Photographe trouvé :", photographer);
     // Appelle la fonction pour afficher les réalisations du photographe
-    displayPhotographerWork(
-      photographerId,
-      jsonData.media,
-      jsonData.photographers
-    );
+    displayPhotographerWork(photographerId, mediaList);
 
     // Appelle la fonction pour afficher le nombre total de likes et le tarif par jour
-    displayTotalLikesAndDailyRate(photographerId, jsonData.media);
+    displayTotalLikesAndDailyRate(photographerId, mediaList);
   } catch (error) {
     console.error("Une erreur est survenue :", error);
   }
@@ -165,9 +172,6 @@ async function main() {
     .querySelector("#media-container")
     ?.addEventListener("click", (event) => {
       console.log(event.target);
-      // TODO : filter event.target pour lancer la fonction adéquate
-      // Par exemple:  Clic sur l'image => lightbox
-      // Autre exemple: Clic sur le coeur => like
     });
 
   // Ajout d'un gestionnaire d'événement au bouton "Contactez-moi"
@@ -177,13 +181,31 @@ async function main() {
   openContactModalButton?.addEventListener("click", () => {
     openContactModal();
   });
+
+  // Ajout d'un gestionnaire d'événement pour la touche "Escape" sur la croix de fermeture du formulaire
+  const closeModalIcon = document.getElementById("closeModalIcon");
+  closeModalIcon?.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeModal();
+    }
+  });
+
+  closeModalIcon?.addEventListener("blur", () => {
+    // Supprimer l'écouteur d'événements pour la touche "Escape"
+    document.removeEventListener("keydown", escapeKeyHandler);
+  });
+}
+
+function escapeKeyHandler(event: KeyboardEvent) {
+  if (event.key === "Escape") {
+    closeModal();
+  }
 }
 
 // Fonction pour afficher les réalisations d'un photographe
 function displayPhotographerWork(
   photographerId: number,
   mediaData: Media[],
-  photographerData: Photographer[],
   sortBy: sortKey = "popular"
 ) {
   // affiche les réalisations du photographe sur la page
@@ -193,27 +215,30 @@ function displayPhotographerWork(
     console.error("Media container not found in the document.");
     return;
   }
+
   // Vide le conteneur avant d'ajouter les nouveaux éléments
   mediaContainer.innerHTML = "";
 
   console.log("Media container found:", mediaContainer);
 
-  const photographerMedia = mediaData
-    .filter((media) => media.photographerId === photographerId)
-    .map(MediaMapper.map);
+  const photographerMedia = mediaData.filter(
+    (media) => media.photographerId === photographerId
+  );
 
   console.log("Photographer media:", photographerMedia);
 
-  // Faire le tri des datas pour les afficher dans le bon ordre
+  // Tri des datas pour les afficher dans le bon ordre
   // Utilise la fonction sortImages pour trier les images avant de les afficher
   const sortedPhotographerMedia = sortImages(photographerMedia, sortBy);
 
   sortedPhotographerMedia.forEach((media) => {
-    const photographerFolderName = getPhotographerFolderName(
-      photographerId,
-      photographerData
-    );
-    const mediaElement = createMediaElement(media, photographerFolderName);
+    // Vérifie si la propriété 'url' est définie dans l'objet média
+    if (!media.url) {
+      console.error("Media object is missing 'url' property:", media);
+      return;
+    }
+
+    const mediaElement = createMediaElement(media);
 
     console.log("Media element created:", mediaElement);
 
@@ -233,31 +258,15 @@ function displayPhotographerWork(
     mediaContainer.appendChild(mediaElement);
   });
 
-  // Ajoute l'événement clic à mediaContainer lors de la création de la page
-  // mediaContainer.addEventListener("click", (event: Event) => {
-  //   const target = event.target as HTMLElement;
-  //   if (target.classList.contains("likes")) {
-  //     // Si le clic est sur l'icône de cœur, récupère l'ID du média et appelle handleLikeClick
-  //     const mediaIdString = target.getAttribute("data-media-id");
-  //     if (mediaIdString) {
-  //       const mediaId = parseInt(mediaIdString, 10);
-  //       handleLikeClick(mediaId);
-  //     }
-  //   }
-  // });
   console.log("Media elements added to media container.");
 }
 
 // Fonction pour créer un élément HTML pour un média
-function createMediaElement(
-  media: Media,
-  photographerFolderName: string
-): HTMLElement {
+function createMediaElement(media: Media): HTMLElement {
   const htmlMediaElement = new MediaFactory()
     .createMedia(media)
     .createHtmlElement({
       media,
-      src: `assets/photographers/${photographerFolderName}/${media.url}`,
     });
 
   const mediaElement = document.createElement("div");
@@ -293,6 +302,32 @@ function createMediaElement(
   mediaElement.appendChild(htmlMediaElement);
   mediaElement.appendChild(mediaDetailsContainer);
 
+  // Ajout d'un attribut tabindex à l'élément d'image
+  if (media.type === "image") {
+    const imageElement = mediaElement.querySelector("img");
+    if (imageElement) {
+      imageElement.alt = media.title;
+      imageElement.setAttribute("tabindex", "0");
+
+      // Ajoutez un gestionnaire d'événements pour la touche "Entrée"
+      imageElement.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          // Ouvrez la lightbox avec l'image ou la vidéo correspondante
+          const startIndex = mediaList.findIndex(
+            (mediaItem) => mediaItem.url === media.url
+          );
+
+          if (startIndex !== -1) {
+            if (
+              !document.getElementById("lightbox")?.classList.contains("open")
+            ) {
+              Lightbox.openLightbox(mediaList, startIndex);
+            }
+          }
+        }
+      });
+    }
+  }
   return mediaElement;
 }
 
@@ -305,13 +340,6 @@ function getPhotographerFolderName(
   return photographer
     ? photographer.portrait.replace(".jpg", "")
     : `photographer_${photographerId}`;
-}
-
-// Fonction pour obtenir l'ID du photographe à partir de l'URL
-function getPhotographerIdFromUrl(): number | null {
-  const urlParams = new URLSearchParams(window.location.search);
-  const photographerIdParam = urlParams.get("id");
-  return photographerIdParam ? parseInt(photographerIdParam, 10) : null;
 }
 
 function handleLikeClick(mediaId: number): void {
@@ -339,7 +367,7 @@ function handleLikeClick(mediaId: number): void {
     likesCountElement.textContent = likesData[mediaId].toString();
 
   // Recalcule le nombre total de likes et met à jour l'affichage
-  displayTotalLikesAndDailyRate(photographerId, jsonData.media);
+  displayTotalLikesAndDailyRate(photographerId, mediaList);
   console.log(`Likes mis à jour pour la photo ${mediaId}`);
 
   // Sauvegarde les données de likes dans le stockage local
@@ -364,7 +392,6 @@ function displayTotalLikesAndDailyRate(
   const totalLikesCountElement = getElementBySelector("#likes-count");
   if (!totalLikesCountElement) return;
 
-  // Utilise calculateTotalLikes au lieu de récupérer directement les likesData
   // Affiche le nombre total de likes
   totalLikesCountElement.textContent = computeTotalLikes().toString();
 
@@ -376,6 +403,7 @@ function displayTotalLikesAndDailyRate(
     ).toString();
   }
 }
+
 // Fonction pour trier les images en fonction de l'option sélectionnée
 function sortImages(gallery: Media[], sortBy: sortKey) {
   console.log("Sorting images by:", sortBy);
@@ -384,9 +412,7 @@ function sortImages(gallery: Media[], sortBy: sortKey) {
       gallery.sort((a, b) => b.likes - a.likes);
       break;
     case "date":
-      gallery.sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
+      gallery.sort((a, b) => b.date.getTime() - a.date.getTime());
       break;
     case "title":
       gallery.sort((a, b) =>
@@ -413,6 +439,7 @@ if (openContactModalButton) {
     openContactModal();
   });
 }
+
 // Fonction pour ouvrir la modale
 function openContactModal() {
   console.log("Trying to open modal");
@@ -429,7 +456,7 @@ function openContactModal() {
   const modalHeader = document.querySelector("#photographerName");
   const closeModalFunction = closeModal;
 
-  // Ajoutez ces logs pour voir si les éléments sont correctement récupérés
+  // logs pour voir si les éléments sont correctement récupérés
   console.log("Photographer Name Element:", photographerNameElement);
   console.log("Modal Overlay:", modalOverlay);
   console.log("Modal:", modal);
@@ -448,6 +475,7 @@ function openContactModal() {
     console.log("Modal elements are null or undefined");
   }
 }
+
 // Fonction pour fermer la modale
 function closeModal() {
   const modalOverlay = document.getElementById("modalOverlay");
@@ -487,15 +515,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Affiche le totalLikes et le tarif par jour
   if (photographerId !== null && jsonData) {
-    displayTotalLikesAndDailyRate(photographerId, jsonData.media);
+    displayTotalLikesAndDailyRate(photographerId, mediaList);
   }
   const contactForm = document.getElementById("contactForm");
   if (contactForm) {
     contactForm.addEventListener("submit", submitForm);
   }
 
+  //lightbox
+
+  //Initialisation de la lightbox
+
   Lightbox.initialize(
     "lightboxOverlay",
+    "lightbox",
     "lightboxImage",
     "lightboxTitle",
     "closeLightbox",
@@ -504,30 +537,51 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 });
 
-// Ajoutez ces lignes pour utiliser la lightbox
+// Gestionnaire d'événement pour les touches au clavier
+document.addEventListener("keydown", (event) => {
+  // Si la lightbox est ouverte
+  if (document.getElementById("lightbox")?.classList.contains("open")) {
+    switch (event.key) {
+      case "ArrowLeft":
+        // passer à l'image précédente
+        Lightbox.showPrevImage();
+        break;
+      case "ArrowRight":
+        // passer à l'image suivante
+        Lightbox.showNextImage();
+        break;
+      case "Escape":
+        // fermer la lightbox
+        if (Lightbox) {
+          Lightbox.closeLightbox();
+        }
+        break;
+    }
+  }
+});
+
 document
   .querySelector("#media-container")
   ?.addEventListener("click", (event) => {
     const target = event.target as HTMLElement;
 
-    // Ajoutez ces logs pour voir quel élément est cliqué
-    console.log("Clicked Element:", target);
-
-    // Si une balise IMG est cliquée, ouvre la lightbox
+    // Vérifie si l'élément cliqué est une image
     if (target.tagName === "IMG") {
-      console.log("Image Clicked!");
+      console.log("Image cliquée!");
 
-      const mediaList = jsonData.media.filter(
-        (media) => media.photographerId === photographerId
-      );
+      // Trouve l'index de l'image cliquée dans la liste des médias
       const startIndex = mediaList.findIndex(
         (media) => media.url === target.getAttribute("src")
       );
 
+      console.log(startIndex);
+
+      // Vérifie si l'index a été trouvé
       if (startIndex !== -1) {
-        Lightbox.openLightbox(mediaList, startIndex);
+        // La ligne suivante ouvre la lightbox uniquement si elle n'est pas déjà ouverte
+        if (!document.getElementById("lightbox")?.classList.contains("open")) {
+          Lightbox.openLightbox(mediaList, startIndex);
+        }
       }
     }
   });
-
-// lightbox("#lightbox", "#closeLightbox", "#prevImage", "#nextImage");

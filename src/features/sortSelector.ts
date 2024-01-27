@@ -45,6 +45,28 @@ function bindEvents() {
       const selectedValue = option.getAttribute("data-filter-value") as sortKey;
       onSortCallbackFunction(selectedValue);
     });
+
+    // Ajoutez un gestionnaire d'événements pour la touche "Entrée"
+    option.addEventListener("keydown", (event) => {
+      if ((event as KeyboardEvent).key === "Enter") {
+        if (!isOpen) return;
+
+        close();
+        const index = Array.from(
+          document.querySelectorAll(optionsSelector)
+        ).indexOf(option);
+
+        if (index === 0) return;
+
+        document.querySelector(optionsContainerSelector)?.prepend(option);
+
+        // Appelez la fonction de tri avec la valeur sélectionnée
+        const selectedValue = option.getAttribute(
+          "data-filter-value"
+        ) as sortKey;
+        onSortCallbackFunction(selectedValue);
+      }
+    });
   });
 
   // Event ouverture de la liste
