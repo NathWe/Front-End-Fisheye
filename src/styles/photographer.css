@@ -176,6 +176,7 @@ header {
     color: #901c1c;
     font-size: 24px;
     font-weight: 400;
+    margin-bottom: 20px;
 }
 
 .likes {
@@ -267,7 +268,7 @@ header {
 /*modal*/
 /* Styles pour la modale */
 .modal-overlay {
-display: none;
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -552,10 +553,10 @@ button:hover {
         flex: 0 0 calc(100% - 20px);
     }
 }
+
 /* Ajout de marge inférieure pour l'espace entre les photos sur la version mobile */
 @media only screen and (max-width: 600px) {
     .photographer_section article img {
-      margin-bottom: 30px;
+        margin-bottom: 30px;
     }
-  }
-  
+}
