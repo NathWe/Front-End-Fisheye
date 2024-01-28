@@ -457,6 +457,8 @@ function openContactModal() {
         closeModal();
       }
     });
+    // Ajoute un gestionnaire d'événement pour le clic sur l'icône
+    closeModalIcon?.addEventListener("click", closeModal);
 
     // Ajoute un gestionnaire d'événement pour la touche "Escape"
     document.addEventListener("keydown", escapeKeyHandler);

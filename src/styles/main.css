@@ -67,3 +67,38 @@ h1 {
 .photographer_section article p.priceElement {
     color: #757575;
 }
+
+/* Ajout de règles CSS pour une version mobile */
+@media only screen and (max-width: 600px) {
+    header {
+      flex-direction: column;
+      height: auto;
+      text-align: center;
+    }
+  
+    h1 {
+      margin-right: 0;
+      margin-bottom: 20px;
+    }
+  
+    .logo {
+      margin-left: 0;
+      margin-bottom: 20px;
+    }
+  
+    .photographer_section {
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin-top: 50px;
+    }
+  
+    .photographer_section article {
+      margin-bottom: 20px;
+    }
+  
+    .photographer_section article img {
+      height: 150px;
+      width: 150px;
+    }
+  }
+  
