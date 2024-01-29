@@ -95,7 +95,6 @@ header {
 
 .contact_button {
     z-index: 1000;
-    /* ou une valeur supérieure selon les besoins */
 }
 
 .contact_button {
@@ -366,7 +365,6 @@ button:hover {
 
 .custom-textarea {
     height: 150px;
-    /* Ajustez la hauteur selon vos besoins */
 }
 
 /* Styles pour le menu de tri */
@@ -471,7 +469,6 @@ button:hover {
     align-items: center;
     justify-content: space-between;
     max-width: 80%;
-    /* Ajustez la largeur maximale selon vos besoins */
     position: relative;
 }
 
@@ -539,7 +536,7 @@ button:hover {
     overflow: hidden;
 }
 
-/* Ajoutrègle de média pour ajuster le style pour les écrans plus petits */
+/* Ajout règle de média pour ajuster le style pour les écrans plus petits */
 @media (max-width: 768px) {
     .media-item {
         width: calc(50% - 20px);

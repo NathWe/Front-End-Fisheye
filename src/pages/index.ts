@@ -36,7 +36,7 @@ async function displayData(photographers: Photographer[]) {
   }
 
   photographers.forEach((photographer) => {
-    // Utiliser la fonction photographerTemplate pour générer le DOM
+    // Utilise la fonction photographerTemplate pour générer le DOM
     const photographerModel = photographerTemplate(photographer);
     const userCardDOM = photographerModel.getUserCardDOM();
     photographersSection.appendChild(userCardDOM);
@@ -45,15 +45,15 @@ async function displayData(photographers: Photographer[]) {
 
 // Fonction d'initialisation
 async function init() {
-  // Récupérer les données des photographes
+  // Récupère les données des photographes
   const photographersData = await getPhotographers();
 
   if (photographersData) {
     const { photographers } = photographersData;
-    // Afficher les données des photographes
+    // Affiche les données des photographes
     displayData(photographers);
   }
 }
 
-// Appeler la fonction d'initialisation
+// Appelle la fonction d'initialisation
 init();

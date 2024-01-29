@@ -14,7 +14,7 @@ export function photographerTemplate(data: Photographer) {
     link.classList.add("photographer-link");
     link.setAttribute("aria-label", `${name}`);
 
-    // Ajouter l'image du photographe
+    // Ajoute l'image du photographe
     const img = document.createElement("img");
     img.setAttribute("src", picture);
     img.setAttribute("alt", `${name}'s portrait`); // Ajout d'une description pour l'accessibilité
@@ -22,33 +22,33 @@ export function photographerTemplate(data: Photographer) {
     img.classList.add("photographer-image");
     link.appendChild(img);
 
-    // Ajouter le nom du photographe
+    // Ajoute le nom du photographe
     const h2 = document.createElement("h2");
     h2.textContent = name;
     link.appendChild(h2);
 
     article.appendChild(link);
 
-    // Ajouter la ville et le pays du photographe
+    // Ajoute la ville et le pays du photographe
     const location = document.createElement("p");
     location.textContent = `${city}, ${country}`;
     location.classList.add("location");
     article.appendChild(location);
 
-    // Ajouter le tagline du photographe
+    // Ajoute le tagline du photographe
     const taglineElement = document.createElement("p");
     taglineElement.textContent = tagline;
     article.appendChild(taglineElement);
 
-    // Ajouter le prix du photographe
+    // Ajoute le prix du photographe
     const priceElement = document.createElement("p");
     priceElement.textContent = `À partir de ${price} €`;
     priceElement.classList.add("priceElement");
     article.appendChild(priceElement);
 
-    //Ajout évènement click sur article
+    //Ajoute l'évènement click sur article
     article.addEventListener("click", () => {
-      // Afficher les données du photographe dans la console
+      // Affiche s les données du photographe dans la console
       console.log("Photographe sélectionné :", { name, id });
       //Redirige vers la page individuelle du photographe
       window.location.href = `photographer.html?id=${id}`;

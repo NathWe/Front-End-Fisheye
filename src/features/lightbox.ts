@@ -13,6 +13,7 @@ export class Lightbox {
   private static prevImageIcon: HTMLElement | null = null;
   private static nextImageIcon: HTMLElement | null = null;
 
+  //Initialisation de la Lightbox avec les éléments du DOM
   static initialize(
     overlayId: string,
     lightboxId: string,
@@ -39,6 +40,7 @@ export class Lightbox {
       this.prevImageIcon &&
       this.nextImageIcon
     ) {
+      // Événements pour les icônes et l'ouverture de la Lightbox
       this.closeLightboxIcon.addEventListener(
         "click",
         this.closeLightbox.bind(this)
@@ -61,7 +63,7 @@ export class Lightbox {
       console.error("Lightbox elements are null or undefined");
     }
   }
-
+  // Ouvre la Lightbox avec une liste de médias et un index de départ
   static openLightbox(mediaList: Media[], startIndex: number) {
     this.mediaList = mediaList;
     this.currentIndex = startIndex;
@@ -91,7 +93,7 @@ export class Lightbox {
       console.error("Overlay or Modal is null or undefined.");
     }
   }
-
+  // Met à jour le contenu de la Lightbox avec le média actuel.
   private static updateLightboxContent() {
     if (
       !this.mediaList ||
@@ -129,7 +131,7 @@ export class Lightbox {
       this.lightboxTitle.textContent = currentMedia.title;
     }
   }
-
+  // Ferme la Lightbox
   static closeLightbox() {
     if (this.modal) {
       this.modal.classList.remove("open");
@@ -141,14 +143,14 @@ export class Lightbox {
       console.error("Modal is null or undefined.");
     }
   }
-
+  // Affiche l'image précédente dans la Lightbox
   static showPrevImage() {
     if (this.currentIndex > 0) {
       this.currentIndex--;
       this.updateLightboxContent();
     }
   }
-
+  // Affiche l'image suivante dans la Lightbox
   static showNextImage() {
     if (this.currentIndex < this.mediaList.length - 1) {
       this.currentIndex++;

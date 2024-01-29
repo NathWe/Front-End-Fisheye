@@ -9,8 +9,8 @@ let isOpen = false;
 
 export function sortSelector(onSort: typeof onSortCallbackFunction) {
   onSortCallbackFunction = onSort;
-  // Récupérez la liste des options de tri
-  // Ajoutez un gestionnaire d'événement à chaque option de tri
+  // Récupére la liste des options de tri
+  // Ajoute un gestionnaire d'événement à chaque option de tri
   bindEvents();
 }
 
@@ -41,12 +41,12 @@ function bindEvents() {
 
       document.querySelector(optionsContainerSelector)?.prepend(option);
 
-      // Appelez la fonction de tri avec la valeur sélectionnée
+      // Appelle la fonction de tri avec la valeur sélectionnée
       const selectedValue = option.getAttribute("data-filter-value") as sortKey;
       onSortCallbackFunction(selectedValue);
     });
 
-    // Ajoutez un gestionnaire d'événements pour la touche "Entrée"
+    // Ajoute un gestionnaire d'événements pour la touche "Entrée"
     option.addEventListener("keydown", (event) => {
       if ((event as KeyboardEvent).key === "Enter") {
         if (!isOpen) return;
@@ -60,7 +60,7 @@ function bindEvents() {
 
         document.querySelector(optionsContainerSelector)?.prepend(option);
 
-        // Appelez la fonction de tri avec la valeur sélectionnée
+        // Appelle la fonction de tri avec la valeur sélectionnée
         const selectedValue = option.getAttribute(
           "data-filter-value"
         ) as sortKey;
